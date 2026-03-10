@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bagunça</title>
+    <title>Bagunça - Jogo do Dinossauro</title>
     <style>
         * {
             margin: 0;
@@ -11,240 +11,444 @@
             box-sizing: border-box;
         }
         body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: 'Press Start 2P', monospace;
             overflow: hidden;
-            background: #0a0a0a;
-            font-family: 'Segoe UI', sans-serif;
         }
-        canvas {
-            display: block;
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 300px;
+            border: 4px solid #e94560;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 100%);
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(233, 69, 96, 0.5);
         }
-        #mensagem {
-            position: fixed;
+        #dino {
+            position: absolute;
+            bottom: 0;
+            left: 50px;
+            width: 40px;
+            height: 45px;
+            transition: transform 0.1s;
+        }
+        .dino-corpo {
+            position: absolute;
+            width: 40px;
+            height: 35px;
+            background: #4a4a4a;
+            border-radius: 10px 10px 5px 5px;
+        }
+        .dino-olho {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+        }
+        .dino-boca {
+            position: absolute;
+            top: 18px;
+            right: 5px;
+            width: 8px;
+            height: 4px;
+            background: #4a4a4a;
+            border-radius: 0 0 5px 5px;
+        }
+        .dino-braco {
+            position: absolute;
             top: 20px;
+            right: -5px;
+            width: 12px;
+            height: 6px;
+            background: #4a4a4a;
+            border-radius: 3px;
+        }
+        .dino-perna {
+            position: absolute;
+            bottom: -10px;
+            width: 10px;
+            height: 15px;
+            background: #4a4a4a;
+            border-radius: 3px;
+        }
+        .dino-perna.esquerda {
+            left: 8px;
+        }
+        .dino-perna.direita {
+            right: 8px;
+        }
+        .dino-pena {
+            position: absolute;
+            top: -8px;
+            left: 10px;
+            width: 20px;
+            height: 10px;
+            background: #e94560;
+            border-radius: 50% 50% 0 0;
+        }
+        #chão {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 20px;
+            background: #8B4513;
+            border-top: 3px solid #654321;
+        }
+        .obstáculo {
+            position: absolute;
+            bottom: 20px;
+            width: 25px;
+            height: 40px;
+            background: linear-gradient(180deg, #2ecc71 0%, #27ae60 100%);
+            border-radius: 5px 5px 0 0;
+            border: 2px solid #1e8449;
+        }
+        .obstáculo::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 8px;
+            height: 8px;
+            background: #1e8449;
+            border-radius: 50%;
+        }
+        .obstáculo::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            right: 5px;
+            width: 8px;
+            height: 8px;
+            background: #1e8449;
+            border-radius: 50%;
+        }
+        #score {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 20px;
+            color: #4a4a4a;
+            text-shadow: 2px 2px 0 #fff;
+        }
+        #high-score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 14px;
+            color: #e94560;
+            text-shadow: 1px 1px 0 #fff;
+        }
+        #game-over {
+            position: absolute;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            font-size: 18px;
+            transform: translate(-50%, -50%);
             text-align: center;
-            pointer-events: none;
-            text-shadow: 0 0 10px rgba(255,100,100,0.8);
-            z-index: 100;
+            display: none;
         }
-        #clique-aqui {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 15px 40px;
-            background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb);
-            border: none;
-            border-radius: 30px;
+        #game-over h1 {
+            font-size: 30px;
+            color: #e94560;
+            text-shadow: 3px 3px 0 #4a4a4a;
+            margin-bottom: 20px;
+        }
+        #game-over p {
+            font-size: 14px;
+            color: #4a4a4a;
+            margin-bottom: 15px;
+        }
+        #reiniciar {
+            padding: 15px 30px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            background: #e94560;
             color: white;
-            font-size: 16px;
-            font-weight: bold;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
-            z-index: 100;
+            box-shadow: 0 4px 0 #b8354c;
+            transition: all 0.1s;
         }
-        #clique-aqui:hover {
-            transform: translateX(-50%) scale(1.1);
-            box-shadow: 0 6px 30px rgba(255, 107, 107, 0.6);
+        #reiniciar:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #b8354c;
+        }
+        #iniciar-msg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+            color: #4a4a4a;
+            text-align: center;
+            animation: piscar 1s infinite;
+        }
+        @keyframes piscar {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        #nuvens {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .nuvem {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.8;
+        }
+        .nuvem::before, .nuvem::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
         }
     </style>
 </head>
 <body>
-    <div id="mensagem">🎨 Move o mouse para criar magia! ✨</div>
-    <canvas id="canvas"></canvas>
-    <button id="clique-aqui" onclick="explosaoTotal()">💥 EXPLOSÃO TOTAL!</button>
+    <div id="game-container">
+        <div id="nuvens"></div>
+        <div id="score">Score: 0</div>
+        <div id="high-score">Recorde: 0</div>
+        <div id="iniciar-msg">PRESSIONE ESPAÇO<br>PARA COMEÇAR!</div>
+        
+        <div id="dino">
+            <div class="dino-corpo">
+                <div class="dino-olho"></div>
+                <div class="dino-boca"></div>
+                <div class="dino-braco"></div>
+            </div>
+            <div class="dino-perna esquerda"></div>
+            <div class="dino-perna direita"></div>
+            <div class="dino-pena"></div>
+        </div>
+        
+        <div id="chão"></div>
+        
+        <div id="game-over">
+            <h1>GAME OVER</h1>
+            <p id="final-score">Score: 0</p>
+            <button id="reiniciar" onclick="reiniciarJogo()">JOGAR NOVAMENTE</button>
+        </div>
+    </div>
 
     <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        const dino = document.getElementById('dino');
+        const gameContainer = document.getElementById('game-container');
+        const scoreElement = document.getElementById('score');
+        const highScoreElement = document.getElementById('high-score');
+        const gameOverElement = document.getElementById('game-over');
+        const finalScoreElement = document.getElementById('final-score');
+        const iniciarMsg = document.getElementById('iniciar-msg');
 
-        const particles = [];
-        const cores = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff9f43'];
-        let mouseX = canvas.width / 2;
-        let mouseY = canvas.height / 2;
-        let explosions = [];
+        let dinoY = 0;
+        let velocidadeY = 0;
+        let gravidade = 0.8;
+        let pulando = false;
+        let jogoIniciado = false;
+        let gameOver = false;
+        let score = 0;
+        let highScore = localStorage.getItem('dinoHighScore') || 0;
+        let velocidadeJogo = 6;
+        let obstaculos = [];
+        let frameCount = 0;
+        let animacaoPerna = 0;
 
-        class Particle {
-            constructor(x, y, cor) {
-                this.x = x;
-                this.y = y;
-                this.cor = cor || cores[Math.floor(Math.random() * cores.length)];
-                this.tamanho = Math.random() * 8 + 2;
-                this.vx = (Math.random() - 0.5) * 8;
-                this.vy = (Math.random() - 0.5) * 8;
-                this.gravidade = 0.1;
-                this.fricao = 0.98;
-                this.opacidade = 1;
-                this.decay = Math.random() * 0.015 + 0.005;
-            }
+        highScoreElement.textContent = 'Recorde: ' + highScore;
 
-            update() {
-                this.vx *= this.fricao;
-                this.vy *= this.fricao;
-                this.vy += this.gravidade;
-                this.x += this.vx;
-                this.y += this.vy;
-                this.opacidade -= this.decay;
-                this.tamanho *= 0.99;
-            }
-
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = this.opacidade;
-                ctx.fillStyle = this.cor;
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = this.cor;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.tamanho, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
+        function criarNuvens() {
+            const nuvensContainer = document.getElementById('nuvens');
+            for (let i = 0; i < 5; i++) {
+                const nuvem = document.createElement('div');
+                nuvem.className = 'nuvem';
+                nuvem.style.width = (60 + Math.random() * 40) + 'px';
+                nuvem.style.height = (25 + Math.random() * 15) + 'px';
+                nuvem.style.top = (30 + Math.random() * 80) + 'px';
+                nuvem.style.left = (Math.random() * 800) + 'px';
+                nuvem.style.animation = `nuvem-mover ${15 + Math.random() * 10}s linear infinite`;
+                nuvensContainer.appendChild(nuvem);
             }
         }
 
-        class Firework {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.particles = [];
-                for (let i = 0; i < 100; i++) {
-                    const angulo = (Math.PI * 2 / 100) * i;
-                    const velocidade = Math.random() * 5 + 2;
-                    const p = {
-                        x: x,
-                        y: y,
-                        vx: Math.cos(angulo) * velocidade,
-                        vy: Math.sin(angulo) * velocidade,
-                        cor: cores[Math.floor(Math.random() * cores.length)],
-                        tamanho: Math.random() * 4 + 2,
-                        opacidade: 1
-                    };
-                    this.particles.push(p);
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes nuvem-mover {
+                from { left: 800px; }
+                to { left: -100px; }
+            }
+        `;
+        document.head.appendChild(style);
+        criarNuvens();
+
+        function pular() {
+            if (!jogoIniciado) {
+                iniciarJogo();
+                return;
+            }
+            
+            if (!pulando && !gameOver) {
+                pulando = true;
+                velocidadeY = -15;
+            }
+        }
+
+        function iniciarJogo() {
+            if (jogoIniciado) return;
+            jogoIniciado = true;
+            iniciarMsg.style.display = 'none';
+            gameLoop();
+        }
+
+        function reiniciarJogo() {
+            gameOver = false;
+            score = 0;
+            velocidadeJogo = 6;
+            dinoY = 0;
+            velocidadeY = 0;
+            pulando = false;
+            frameCount = 0;
+            
+            obstaculos.forEach(obs => obs.remove());
+            obstaculos = [];
+            
+            dino.style.bottom = '0px';
+            gameOverElement.style.display = 'none';
+            scoreElement.textContent = 'Score: 0';
+            
+            iniciarMsg.style.display = 'block';
+            jogoIniciado = false;
+        }
+
+        function criarObstaculo() {
+            const obstaculo = document.createElement('div');
+            obstaculo.className = 'obstáculo';
+            obstaculo.style.left = '800px';
+            
+            const altura = 35 + Math.random() * 25;
+            obstaculo.style.height = altura + 'px';
+            
+            gameContainer.appendChild(obstaculo);
+            obstaculos.push(obstaculo);
+        }
+
+        function colisao(dinoRect, obsRect) {
+            return !(
+                dinoRect.top > obsRect.bottom ||
+                dinoRect.right < obsRect.left ||
+                dinoRect.bottom < obsRect.top ||
+                dinoRect.left > obsRect.right
+            );
+        }
+
+        function gameLoop() {
+            if (gameOver) return;
+            
+            frameCount++;
+
+            if (pulando) {
+                velocidadeY += gravidade;
+                dinoY -= velocidadeY;
+                
+                if (dinoY <= 0) {
+                    dinoY = 0;
+                    pulando = false;
+                    velocidadeY = 0;
+                }
+                
+                dino.style.bottom = dinoY + 'px';
+                dino.style.transform = 'rotate(-20deg)';
+            } else {
+                animacaoPerna++;
+                if (animacaoPerna % 10 < 5) {
+                    document.querySelector('.dino-perna.esquerda').style.height = '18px';
+                    document.querySelector('.dino-perna.direita').style.height = '12px';
+                } else {
+                    document.querySelector('.dino-perna.esquerda').style.height = '12px';
+                    document.querySelector('.dino-perna.direita').style.height = '18px';
+                }
+                dino.style.transform = 'rotate(0deg)';
+            }
+
+            if (frameCount % 100 === 0) {
+                score += 10;
+                scoreElement.textContent = 'Score: ' + score;
+                
+                if (score % 100 === 0) {
+                    velocidadeJogo += 0.5;
                 }
             }
 
-            update() {
-                this.particles.forEach(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.vy += 0.05;
-                    p.opacidade -= 0.02;
-                });
-                this.particles = this.particles.filter(p => p.opacidade > 0);
+            const intervaloObstaculo = Math.max(60, 120 - velocidadeJogo * 5);
+            if (frameCount % Math.floor(intervaloObstaculo) === 0) {
+                criarObstaculo();
             }
 
-            draw() {
-                this.particles.forEach(p => {
-                    ctx.save();
-                    ctx.globalAlpha = p.opacidade;
-                    ctx.fillStyle = p.cor;
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = p.cor;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.tamanho, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.restore();
-                });
-            }
-        }
+            const dinoRect = {
+                left: 50,
+                right: 90,
+                top: 255 - dinoY,
+                bottom: 300 - dinoY
+            };
 
-        canvas.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            
-            if (Math.random() < 0.3) {
-                particles.push(new Particle(mouseX, mouseY));
-            }
-        });
+            for (let i = obstaculos.length - 1; i >= 0; i--) {
+                const obs = obstaculos[i];
+                let obsLeft = parseFloat(obs.style.left);
+                obsLeft -= velocidadeJogo;
+                obs.style.left = obsLeft + 'px';
 
-        canvas.addEventListener('click', (e) => {
-            for (let i = 0; i < 30; i++) {
-                particles.push(new Particle(e.clientX, e.clientY));
-            }
-        });
+                const obsRect = {
+                    left: obsLeft,
+                    right: obsLeft + 25,
+                    top: 260,
+                    bottom: 300
+                };
 
-        canvas.addEventListener('touchstart', (e) => {
-            const touch = e.touches[0];
-            for (let i = 0; i < 30; i++) {
-                particles.push(new Particle(touch.clientX, touch.clientY));
-            }
-        });
-
-        function explosaoTotal() {
-            for (let i = 0; i < 10; i++) {
-                setTimeout(() => {
-                    const x = Math.random() * canvas.width;
-                    const y = Math.random() * canvas.height * 0.7;
-                    explosions.push(new Firework(x, y));
-                }, i * 100);
-            }
-            document.getElementById('mensagem').textContent = '💥 WOW! ESPETACULAR! 💥';
-            setTimeout(() => {
-                document.getElementById('mensagem').textContent = '🎨 Move o mouse para criar magia! ✨';
-            }, 3000);
-        }
-
-        function desenharTexto() {
-            ctx.save();
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.font = 'bold 200px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('BAGUNÇA', canvas.width / 2, canvas.height / 2);
-            ctx.restore();
-        }
-
-        function animate() {
-            ctx.fillStyle = 'rgba(10, 10, 10, 0.1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            desenharTexto();
-            
-            for (let i = 0; i < 3; i++) {
-                const x = mouseX + (Math.random() - 0.5) * 50;
-                const y = mouseY + (Math.random() - 0.5) * 50;
-                particles.push(new Particle(x, y));
-            }
-            
-            particles.forEach((p, index) => {
-                p.update();
-                p.draw();
-                if (p.opacidade <= 0 || p.tamanho <= 0.5) {
-                    particles.splice(index, 1);
+                if (colisao(dinoRect, obsRect)) {
+                    gameOver = true;
+                    finalScoreElement.textContent = 'Score: ' + score;
+                    gameOverElement.style.display = 'block';
+                    
+                    if (score > highScore) {
+                        highScore = score;
+                        localStorage.setItem('dinoHighScore', highScore);
+                        highScoreElement.textContent = 'Recorde: ' + highScore;
+                    }
+                    return;
                 }
-            });
 
-            explosions.forEach((exp, index) => {
-                exp.update();
-                exp.draw();
-                if (exp.particles.length === 0) {
-                    explosions.splice(index, 1);
+                if (obsLeft < -50) {
+                    obs.remove();
+                    obstaculos.splice(i, 1);
                 }
-            });
+            }
 
-            requestAnimationFrame(animate);
+            requestAnimationFrame(gameLoop);
         }
 
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'ArrowUp') {
+                e.preventDefault();
+                pular();
+            }
         });
 
-        animate();
-
-        setInterval(() => {
-            if (Math.random() < 0.3) {
-                const x = Math.random() * canvas.width;
-                const y = Math.random() * canvas.height * 0.6;
-                explosions.push(new Firework(x, y));
-            }
-        }, 2000);
+        gameContainer.addEventListener('click', pular);
+        gameContainer.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            pular();
+        });
     </script>
 </body>
 </html>
