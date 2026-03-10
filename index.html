@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bagunça</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            overflow: hidden;
+            background: #0a0a0a;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+        #mensagem {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            pointer-events: none;
+            text-shadow: 0 0 10px rgba(255,100,100,0.8);
+            z-index: 100;
+        }
+        #clique-aqui {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 40px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            z-index: 100;
+        }
+        #clique-aqui:hover {
+            transform: translateX(-50%) scale(1.1);
+            box-shadow: 0 6px 30px rgba(255, 107, 107, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div id="mensagem">🎨 Move o mouse para criar magia! ✨</div>
+    <canvas id="canvas"></canvas>
+    <button id="clique-aqui" onclick="explosaoTotal()">💥 EXPLOSÃO TOTAL!</button>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const cores = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff9f43'];
+        let mouseX = canvas.width / 2;
+        let mouseY = canvas.height / 2;
+        let explosions = [];
+
+        class Particle {
+            constructor(x, y, cor) {
+                this.x = x;
+                this.y = y;
+                this.cor = cor || cores[Math.floor(Math.random() * cores.length)];
+                this.tamanho = Math.random() * 8 + 2;
+                this.vx = (Math.random() - 0.5) * 8;
+                this.vy = (Math.random() - 0.5) * 8;
+                this.gravidade = 0.1;
+                this.fricao = 0.98;
+                this.opacidade = 1;
+                this.decay = Math.random() * 0.015 + 0.005;
+            }
+
+            update() {
+                this.vx *= this.fricao;
+                this.vy *= this.fricao;
+                this.vy += this.gravidade;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.opacidade -= this.decay;
+                this.tamanho *= 0.99;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacidade;
+                ctx.fillStyle = this.cor;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.cor;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.tamanho, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        class Firework {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.particles = [];
+                for (let i = 0; i < 100; i++) {
+                    const angulo = (Math.PI * 2 / 100) * i;
+                    const velocidade = Math.random() * 5 + 2;
+                    const p = {
+                        x: x,
+                        y: y,
+                        vx: Math.cos(angulo) * velocidade,
+                        vy: Math.sin(angulo) * velocidade,
+                        cor: cores[Math.floor(Math.random() * cores.length)],
+                        tamanho: Math.random() * 4 + 2,
+                        opacidade: 1
+                    };
+                    this.particles.push(p);
+                }
+            }
+
+            update() {
+                this.particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.05;
+                    p.opacidade -= 0.02;
+                });
+                this.particles = this.particles.filter(p => p.opacidade > 0);
+            }
+
+            draw() {
+                this.particles.forEach(p => {
+                    ctx.save();
+                    ctx.globalAlpha = p.opacidade;
+                    ctx.fillStyle = p.cor;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = p.cor;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.tamanho, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                });
+            }
+        }
+
+        canvas.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            if (Math.random() < 0.3) {
+                particles.push(new Particle(mouseX, mouseY));
+            }
+        });
+
+        canvas.addEventListener('click', (e) => {
+            for (let i = 0; i < 30; i++) {
+                particles.push(new Particle(e.clientX, e.clientY));
+            }
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            for (let i = 0; i < 30; i++) {
+                particles.push(new Particle(touch.clientX, touch.clientY));
+            }
+        });
+
+        function explosaoTotal() {
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const x = Math.random() * canvas.width;
+                    const y = Math.random() * canvas.height * 0.7;
+                    explosions.push(new Firework(x, y));
+                }, i * 100);
+            }
+            document.getElementById('mensagem').textContent = '💥 WOW! ESPETACULAR! 💥';
+            setTimeout(() => {
+                document.getElementById('mensagem').textContent = '🎨 Move o mouse para criar magia! ✨';
+            }, 3000);
+        }
+
+        function desenharTexto() {
+            ctx.save();
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.font = 'bold 200px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('BAGUNÇA', canvas.width / 2, canvas.height / 2);
+            ctx.restore();
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(10, 10, 10, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            desenharTexto();
+            
+            for (let i = 0; i < 3; i++) {
+                const x = mouseX + (Math.random() - 0.5) * 50;
+                const y = mouseY + (Math.random() - 0.5) * 50;
+                particles.push(new Particle(x, y));
+            }
+            
+            particles.forEach((p, index) => {
+                p.update();
+                p.draw();
+                if (p.opacidade <= 0 || p.tamanho <= 0.5) {
+                    particles.splice(index, 1);
+                }
+            });
+
+            explosions.forEach((exp, index) => {
+                exp.update();
+                exp.draw();
+                if (exp.particles.length === 0) {
+                    explosions.splice(index, 1);
+                }
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        animate();
+
+        setInterval(() => {
+            if (Math.random() < 0.3) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height * 0.6;
+                explosions.push(new Firework(x, y));
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
+
