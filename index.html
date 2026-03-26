@@ -690,7 +690,7 @@
             }
             
             if (!flappyGameOver) {
-                birdVelocity = -8;
+                birdVelocity = -10;
             }
         }
 
@@ -724,8 +724,8 @@
         }
 
         function createPipe() {
-            const gap = 130;
-            const pipeHeight = 150 + Math.random() * 100;
+            const gap = 200;
+            const pipeHeight = 100 + Math.random() * 100;
             const containerHeight = 400;
             
             const topPipe = document.createElement('div');
