@@ -212,7 +212,6 @@ button:hover::before {
 
 .serviceSection {
     display: flex;
-    justify-content: space-around;
     align-items: center;
     width: 100%;    
     border-radius: 20px;
@@ -232,6 +231,7 @@ button:hover::before {
 }
 
 .light {
+    justify-content: right;
     margin: 2rem 0 2rem 0;
     background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
@@ -243,7 +243,6 @@ button:hover::before {
 
 .serviceSectionImgContainer {
     display: flex;
-    justify-content: center;
     align-items: center;
     max-height: 50%;
     width: 20%;
