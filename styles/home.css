@@ -110,8 +110,8 @@ header {
 /* ==================== FLOATING WHATSAPP BUTTON ==================== */
 .floating-whatsapp {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 80px;
+    right: 30px;
     width: 60px;
     height: 60px;
     background: #25d366;
