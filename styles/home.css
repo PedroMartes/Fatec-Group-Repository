@@ -260,19 +260,19 @@ button {
 }
 
 .light {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
-    border-color: rgba(139, 92, 246, 0.2);
-    flex-direction: row-reverse;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.6) 0%, rgba(30, 41, 59, 0.6) 100%);
+    border-color: rgba(59, 130, 246, 0.2);
+    flex-direction: row;
 }
 
 .light:hover {
-    border-color: rgba(139, 92, 246, 0.4);
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(139, 92, 246, 0.12) 100%);
+    border-color: rgba(59, 130, 246, 0.4);
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%);
 }
 
 /* ==================== IMAGE CONTAINER ==================== */
 .serviceSectionImgContainer {
-    flex: 0 0 35%;
+    flex: 0 0 25%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -335,7 +335,7 @@ button {
     }
 
     .serviceSectionImgContainer {
-        flex: 0 0 40%;
+        flex: 0 0 30%;
     }
 
     .serviceSectionTextTitle {
