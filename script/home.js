@@ -5,29 +5,16 @@ const sections = {
   caminhonete: document.getElementById('caminhonete')
 };
 
-function getCurrentSection() {
-  return Object.values(sections).find(section => section && section.classList.contains('active'));
-}
-
 function showSection(name) {
-  const target = sections[name];
-  if (!target) return;
-  const current = getCurrentSection();
-  if (current === target) return;
-
-  if (current) {
-    current.classList.remove('active');
-    setTimeout(() => {
-      current.classList.add('hidden');
-      target.classList.remove('hidden');
-      setTimeout(() => {
-        target.classList.add('active');
-      }, 10);
-    }, 400);
-  } else {
-    target.classList.remove('hidden');
-    target.classList.add('active');
-  }
+  Object.values(sections).forEach(section => {
+    if (section.id === name) {
+      section.classList.remove('hidden');
+      section.classList.add('active');
+    } else {
+      section.classList.add('hidden');
+      section.classList.remove('active');
+    }
+  });
 }
 
 sectionButtons.forEach(button => {
@@ -37,5 +24,5 @@ sectionButtons.forEach(button => {
   });
 });
 
-// inicializar com carros visível (ou se quiser todos ocultos, comente a linha abaixo)
+// inicializar com carros visível
 showSection('carro');
